@@ -22,4 +22,18 @@ public class GestionHospital {
     public Map<String, Area> getMapaAreas () {
         return mapaAreas;
     }
+
+    public boolean existeEnfermera(String rut) {
+
+        for (Area area : mapaAreas.values()) {
+
+            for (Enfermera e : area.getListaEnfermeras()) {
+
+                if (e.getRut().equalsIgnoreCase(rut)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }
