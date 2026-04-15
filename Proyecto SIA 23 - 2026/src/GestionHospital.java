@@ -2,38 +2,38 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GestionHospital {
-
     private Map<String, Area> mapaAreas;
 
     public GestionHospital() {
         this.mapaAreas = new HashMap<>();
     }
 
-    public void crearArea(String nombre) {
-        if (!mapaAreas.containsKey(nombre)) {
-            mapaAreas.put(nombre, new Area(nombre));
+    public void agregarArea(String nombreArea) {
+        if (!mapaAreas.containsKey(nombreArea)) {
+            mapaAreas.put(nombreArea, new Area(nombreArea));
         }
     }
 
-    public Area getArea(String nombre) {
-        return mapaAreas.get(nombre);
+    public Area buscarArea(String nombreArea) {
+        return mapaAreas.get(nombreArea);
     }
 
-    public Map<String, Area> getMapaAreas () {
+    public Map<String, Area> getMapaAreas() {
         return mapaAreas;
     }
 
-    public boolean existeEnfermera(String rut) {
-
+    public Enfermera buscarEnfermeraGlobal(String rut) {
         for (Area area : mapaAreas.values()) {
-
-            for (Enfermera e : area.getListaEnfermeras()) {
-
-                if (e.getRut().equalsIgnoreCase(rut)) {
-                    return true;
+            for (Enfermera enfermera : area.getListaEnfermeras()) {
+                if (enfermera.getRut().equalsIgnoreCase(rut)) {
+                    return enfermera;
                 }
             }
         }
-        return false;
+        return null;
+    }
+
+    public boolean eliminarArea(String nombreArea) {
+        return mapaAreas.remove(nombreArea) != null;
     }
 }
