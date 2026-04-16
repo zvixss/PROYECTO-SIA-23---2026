@@ -12,9 +12,20 @@ public class Area {
     }
 
     public String getNombre() { return nombre; }
+    public void setNombre(String n) { nombre = n; }
     public List<Enfermera> getListaEnfermeras() { return listaEnfermeras; }
 
     public void agregarEnfermera(Enfermera e) {
         listaEnfermeras.add(e);
+    }
+
+    public void agregarEnfermera(String rut, String nombre, String especialidad) {
+        Enfermera nuevaEnfermera = new Enfermera(rut, nombre, especialidad);
+        listaEnfermeras.add(nuevaEnfermera);
+    }
+
+    @Override
+    public String toString() {
+        return "Area: " + getNombre() + " (Enfermeras registradas: " + listaEnfermeras.size() + ")";
     }
 }

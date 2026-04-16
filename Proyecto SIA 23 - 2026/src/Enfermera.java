@@ -28,4 +28,9 @@ public class Enfermera {
     public void agregarTurno(String turno) {
         this.turnos.add(turno);
     }
+
+    @Override
+    public String toString() {
+        return "RUT: " + rut + " | Nombre: " + nombre + " | Especialidad: " + especialidad;
+    }
 }
