@@ -50,9 +50,4 @@ public class Enfermera {
     public String toString() {
         return "RUT: " + rut + " | Nombre: " + nombre + " | Especialidad: " + especialidad;
     }
-
-    @Override
-    public String toString() {
-        return "RUT: " + rut + " | Nombre: " + nombre + " | Especialidad: " + especialidad;
-    }
 }
