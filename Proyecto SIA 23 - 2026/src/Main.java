@@ -142,6 +142,7 @@ public class Main {
             System.out.println("3. Buscar Enfermera por RUT");
             System.out.println("4. Editar Datos de Enfermera");
             System.out.println("5. Eliminar Enfermera por RUT");
+            System.out.println("6. Gestionar Turnos (Asignacion/Cambios/Reportes)");
             System.out.println("0. Volver al Menu Principal");
             System.out.print("Seleccione: ");
 
@@ -167,6 +168,9 @@ public class Main {
                     break;
                 case 5:
                     eliminarEnfermera(sistema);
+                    break;
+                case 6:
+                    menuGestionTurnos(sistema);
                     break;
             }
         } while (opcionEnf != 0);
@@ -264,5 +268,78 @@ public class Main {
         }
         if (eliminado) System.out.println("Personal eliminado.");
         else System.out.println("No se encontro el RUT.");
+    }
+
+    private static void menuGestionTurnos(GestionHospital sistema) {
+        System.out.println("\n--- GESTION DE TURNOS ---");
+        System.out.println("1. Asignar Turno");
+        System.out.println("2. Cambiar Turno (Swap entre enfermeras)");
+        System.out.println("3. Reporte de Asistencia");
+        System.out.print("Seleccione: ");
+        int op = Integer.parseInt(sc.nextLine());
+
+        try {
+            switch (op) {
+                case 1:
+                    asignarTurno(sistema);
+                    break;
+                case 2:
+                    intercambiarTurnos(sistema);
+                    break;
+                case 3:
+                    generarReporteAsistencia(sistema);
+                    break;
+            }
+        } catch (EnfermeraNoEncontradaException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private static void asignarTurno(GestionHospital sistema) throws EnfermeraNoEncontradaException {
+        System.out.print("RUT Enfermera: ");
+        Enfermera e = sistema.buscarEnfermera(sc.nextLine());
+
+        System.out.print("Ingrese Turno (ej: Lunes-Mañana, Martes-Noche): ");
+        String turno = sc.nextLine();
+
+        if (e.estaDisponible(turno)) {
+            e.agregarTurno(turno);
+            System.out.println("Turno asignado considerando disponibilidad.");
+        } else {
+            System.out.println("Conflicto: La enfermera ya tiene ese turno asignado.");
+        }
+    }
+
+    private static void intercambiarTurnos(GestionHospital sistema) throws EnfermeraNoEncontradaException {
+        System.out.print("RUT Enfermera 1: ");
+        Enfermera e1 = sistema.buscarEnfermera(sc.nextLine());
+        System.out.print("RUT Enfermera 2: ");
+        Enfermera e2 = sistema.buscarEnfermera(sc.nextLine());
+
+        System.out.print("Turno de " + e1.getNombre() + " a ceder: ");
+        String t1 = sc.nextLine();
+        System.out.print("Turno de " + e2.getNombre() + " a ceder: ");
+        String t2 = sc.nextLine();
+
+        if (e1.getListaTurnos().contains(t1) && e2.getListaTurnos().contains(t2)) {
+            e1.eliminarTurno(t1);
+            e2.eliminarTurno(t2);
+            e1.agregarTurno(t2);
+            e2.agregarTurno(t1);
+            System.out.println("Cambio de turno realizado exitosamente.");
+        } else {
+            System.out.println("Error: Uno de los turnos no corresponde a la enfermera indicada.");
+        }
+    }
+
+    private static void generarReporteAsistencia(GestionHospital sistema) {
+        System.out.println("\n--- REPORTE DE ASISTENCIA Y CARGA HORARIA ---");
+        for (Area area : sistema.getMapaAreas().values()) {
+            System.out.println("Area: " + area.getNombre());
+            for (Enfermera e : area.getListaEnfermeras()) {
+                int cantidadTurnos = e.getListaTurnos().size();
+                System.out.println(" - " + e.getNombre() + ": " + cantidadTurnos + " turnos asignados.");
+            }
+        }
     }
 }

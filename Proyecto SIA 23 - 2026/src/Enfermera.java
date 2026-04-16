@@ -42,12 +42,21 @@ public class Enfermera {
         return listaTurnos;
     }
 
+    public void eliminarTurno(String turno) {
+        this.listaTurnos.remove(turno);
+    }
+
+    public boolean estaDisponible(String turno) {
+        // Regla de disponibilidad: no puede tener dos turnos el mismo día/bloque
+        return !this.listaTurnos.contains(turno);
+    }
+
     public void agregarTurno(String turno) {
         this.listaTurnos.add(turno);
     }
 
     @Override
     public String toString() {
-        return "RUT: " + rut + " | Nombre: " + nombre + " | Especialidad: " + especialidad;
+        return "RUT: " + rut + " | Nombre: " + nombre + " | Especialidad: " + especialidad + " | Turnos: " + listaTurnos;
     }
 }
