@@ -1,56 +1,62 @@
 import java.io.*;
+import java.util.Arrays;
 
 public class GestorArchivos {
     private static final String RUTA_ARCHIVO = "datos_hospital.csv";
 
-    // Grabado Batch: Se llama al SALIR del sistema
     public static void guardarDatos(GestionHospital sistema) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(RUTA_ARCHIVO))) {
             for (Area area : sistema.getMapaAreas().values()) {
                 if (area.getListaEnfermeras().isEmpty()) {
-                    // Guardamos el área aunque esté vacía
-                    writer.write(area.getNombre() + ",VACIO,VACIO,VACIO");
+                    writer.write(area.getNombre() + ",VACIO,VACIO,VACIO,SIN_TURNOS");
                     writer.newLine();
                 } else {
-                    // Guardamos cada enfermera con su área respectiva
                     for (Enfermera e : area.getListaEnfermeras()) {
-                        writer.write(area.getNombre() + "," + e.getRut() + "," + e.getNombre() + "," + e.getEspecialidad());
+                        String turnosStr = String.join(";", e.getListaTurnos());
+                        if (turnosStr.isEmpty()) turnosStr = "SIN_TURNOS";
+
+                        writer.write(area.getNombre() + "," +
+                                e.getRut() + "," +
+                                e.getNombre() + "," +
+                                e.getEspecialidad() + "," +
+                                turnosStr);
                         writer.newLine();
                     }
                 }
             }
-            System.out.println("-> Datos guardados exitosamente en CSV al salir.");
         } catch (IOException e) {
-            System.err.println("Error al guardar los datos: " + e.getMessage());
+            System.err.println("Error al guardar: " + e.getMessage());
         }
     }
 
-    // Carga Batch: Se llama al INICIAR el sistema
     public static void cargarDatos(GestionHospital sistema) {
         File archivo = new File(RUTA_ARCHIVO);
-        if (!archivo.exists()) {
-            System.out.println("-> No hay archivo previo. Se iniciará un sistema en blanco.");
-            return;
-        }
+        if (!archivo.exists()) return;
 
         try (BufferedReader reader = new BufferedReader(new FileReader(archivo))) {
             String linea;
             while ((linea = reader.readLine()) != null) {
                 String[] partes = linea.split(",");
-                if (partes.length == 4) {
+                if (partes.length >= 4) {
                     String nombreArea = partes[0];
-                    sistema.agregarArea(nombreArea); // Agrega el área (el HashMap evita duplicados)
+                    sistema.agregarArea(nombreArea);
 
-                    // Si no es un área vacía, agregamos la enfermera
                     if (!partes[1].equals("VACIO")) {
                         Area areaActual = sistema.buscarArea(nombreArea);
-                        areaActual.agregarEnfermera(partes[1], partes[2], partes[3]);
+                        Enfermera nueva = new Enfermera(partes[1], partes[2], partes[3]);
+
+                        if (partes.length == 5 && !partes[4].equals("SIN_TURNOS")) {
+                            String[] turnos = partes[4].split(";");
+                            for (String t : turnos) {
+                                nueva.agregarTurno(t);
+                            }
+                        }
+                        areaActual.getListaEnfermeras().add(nueva);
                     }
                 }
             }
-            System.out.println("-> Datos cargados exitosamente desde CSV.");
         } catch (IOException e) {
-            System.err.println("Error al cargar los datos: " + e.getMessage());
+            System.err.println("Error al cargar: " + e.getMessage());
         }
     }
 }
