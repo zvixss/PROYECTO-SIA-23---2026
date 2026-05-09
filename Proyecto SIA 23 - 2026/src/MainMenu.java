@@ -60,7 +60,7 @@ public class MainMenu {
                 opcionArea = Integer.parseInt(sc.nextLine());
                 switch (opcionArea) {
                     case 1:
-                        System.out.print("Nombre de la nueva area (ej: Urgencias): ");
+                        System.out.print("Nombre de la nueva area: ");
                         sistema.agregarArea(sc.nextLine());
                         break;
                     case 2:
@@ -70,20 +70,16 @@ public class MainMenu {
                         break;
                     case 3:
                         System.out.print("Nombre del area a buscar: ");
-                        Area a = sistema.buscarArea(sc.nextLine());
+                        Area a = sistema.buscarArea(sc.nextLine(), false);
                         if (a != null) System.out.println("Area encontrada: " + a.getNombre());
                         else System.out.println("Area no existe.");
                         break;
                     case 4:
                         System.out.print("Nombre actual: ");
                         String act = sc.nextLine();
-                        Area ed = sistema.buscarArea(act);
-                        if (ed != null) {
+                        if (sistema.buscarArea(act, false) != null) {
                             System.out.print("Nuevo nombre: ");
-                            String n = sc.nextLine();
-                            sistema.getMapaAreas().remove(act);
-                            ed.setNombre(n);
-                            sistema.getMapaAreas().put(n, ed);
+                            sistema.actualizarNombreArea(act, sc.nextLine());
                             System.out.println("Area actualizada.");
                         } else System.out.println("Area no encontrada.");
                         break;
@@ -93,7 +89,7 @@ public class MainMenu {
                         else System.out.println("No se pudo eliminar.");
                         break;
                 }
-            } catch (Exception e) { System.out.println("Error."); }
+            } catch (Exception e) { System.out.println("Error en la operacion."); }
         } while (opcionArea != 0);
     }
 
@@ -118,7 +114,7 @@ public class MainMenu {
                     case 5: eliminarEnfermera(); break;
                     case 6: menuGestionTurnos(); break;
                 }
-            } catch (Exception e) { System.out.println("Error."); }
+            } catch (Exception e) { System.out.println("Error en la operacion."); }
         } while (opcionEnf != 0);
     }
 
@@ -132,13 +128,15 @@ public class MainMenu {
         System.out.print("RUT (formato 12345678-9): ");
         String rut = sc.nextLine();
         try {
-            if (!Validador.validarRut(rut)) throw new RutInvalidoException("RUT no valido.");
+            Validador.validarRut(rut);
             System.out.print("Nombre completo: ");
             String nom = sc.nextLine();
             System.out.print("Especialidad: ");
             area.agregarEnfermera(rut, nom, sc.nextLine());
-            System.out.println("Enfermera registrada.");
-        } catch (Exception e) { System.out.println(e.getMessage()); }
+            System.out.println("Enfermera registrada exitosamente.");
+        } catch (RutInvalidoException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     private void listarEnfermeras() {
@@ -150,10 +148,12 @@ public class MainMenu {
     }
 
     private void buscarEnfermera() {
-        System.out.print("RUT a buscar (formato 12345678-9): ");
+        System.out.print("RUT a buscar: ");
         try {
             System.out.println(sistema.buscarEnfermera(sc.nextLine()));
-        } catch (Exception e) { System.out.println(e.getMessage()); }
+        } catch (EnfermeraNoEncontradaException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     private void editarEnfermera() {
@@ -163,20 +163,14 @@ public class MainMenu {
             System.out.print("Nuevo nombre: "); e.setNombre(sc.nextLine());
             System.out.print("Nueva especialidad: "); e.setEspecialidad(sc.nextLine());
             System.out.println("Datos actualizados.");
-        } catch (Exception ex) { System.out.println(ex.getMessage()); }
+        } catch (EnfermeraNoEncontradaException ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 
     private void eliminarEnfermera() {
-        System.out.print("RUT a eliminar (formato 12345678-9): ");
-        String rut = sc.nextLine();
-        boolean elim = false;
-        for (Area area : sistema.getMapaAreas().values()) {
-            if (area.getListaEnfermeras().removeIf(e -> e.getRut().equalsIgnoreCase(rut))) {
-                elim = true;
-                break;
-            }
-        }
-        if (elim) System.out.println("Personal eliminado.");
+        System.out.print("RUT a eliminar: ");
+        if (sistema.eliminarEnfermeraGlobal(sc.nextLine())) System.out.println("Personal eliminado.");
         else System.out.println("RUT no encontrado.");
     }
 
@@ -185,10 +179,10 @@ public class MainMenu {
         System.out.println("1. Asignar Turno\n2. Quitar Turno\n3. Ver Listado");
         try {
             int op = Integer.parseInt(sc.nextLine());
-            System.out.print("RUT de enfermera (formato 12345678-9): ");
+            System.out.print("RUT de enfermera: ");
             Enfermera e = sistema.buscarEnfermera(sc.nextLine());
             if (op == 1) {
-                System.out.print("Nuevo Turno (ej: Lunes-Mañana): ");
+                System.out.print("Nuevo Turno: ");
                 e.agregarTurno(sc.nextLine());
                 System.out.println("Turno asignado.");
             } else if (op == 2) {
@@ -198,6 +192,6 @@ public class MainMenu {
             } else if (op == 3) {
                 System.out.println("Turnos: " + e.getListaTurnos());
             }
-        } catch (Exception e) { System.out.println("Error."); }
+        } catch (Exception e) { System.out.println("Error en la gestion de turnos."); }
     }
 }

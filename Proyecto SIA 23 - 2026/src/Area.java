@@ -12,8 +12,12 @@ public class Area {
     }
 
     public String getNombre() { return nombre; }
+
     public void setNombre(String n) { nombre = n; }
-    public List<Enfermera> getListaEnfermeras() { return listaEnfermeras; }
+
+    public List<Enfermera> getListaEnfermeras() {
+        return new ArrayList<>(listaEnfermeras);
+    }
 
     public void agregarEnfermera(Enfermera e) {
         listaEnfermeras.add(e);
@@ -22,6 +26,10 @@ public class Area {
     public void agregarEnfermera(String rut, String nombre, String especialidad) {
         Enfermera nuevaEnfermera = new Enfermera(rut, nombre, especialidad);
         listaEnfermeras.add(nuevaEnfermera);
+    }
+
+    public boolean eliminarEnfermera(String rut) {
+        return listaEnfermeras.removeIf(e -> e.getRut().equalsIgnoreCase(rut));
     }
 
     @Override

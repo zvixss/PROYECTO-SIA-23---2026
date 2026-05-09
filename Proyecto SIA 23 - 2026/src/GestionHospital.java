@@ -17,10 +17,6 @@ public class GestionHospital {
         }
     }
 
-    public Area buscarArea(String nombreArea) {
-        return mapaAreas.get(nombreArea);
-    }
-
     public Area buscarArea(String nombreArea, boolean crearSiNoExiste) {
         if (!mapaAreas.containsKey(nombreArea) && crearSiNoExiste) {
             agregarArea(nombreArea);
@@ -29,7 +25,15 @@ public class GestionHospital {
     }
 
     public Map<String, Area> getMapaAreas() {
-        return mapaAreas;
+        return new HashMap<>(mapaAreas);
+    }
+
+    public void actualizarNombreArea(String nombreActual, String nuevoNombre) {
+        Area area = mapaAreas.remove(nombreActual);
+        if (area != null) {
+            area.setNombre(nuevoNombre);
+            mapaAreas.put(nuevoNombre, area);
+        }
     }
 
     public Enfermera buscarEnfermera(String rut) throws EnfermeraNoEncontradaException {
@@ -41,6 +45,15 @@ public class GestionHospital {
             }
         }
         throw new EnfermeraNoEncontradaException("Error: No se encontro personal con el RUT " + rut);
+    }
+
+    public boolean eliminarEnfermeraGlobal(String rut) {
+        for (Area area : mapaAreas.values()) {
+            if (area.eliminarEnfermera(rut)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean existeEnfermera(String rut) {

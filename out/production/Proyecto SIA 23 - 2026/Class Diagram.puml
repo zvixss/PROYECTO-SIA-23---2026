@@ -1,0 +1,125 @@
+@startuml
+' Configuración estética para ver símbolos +/- en vez de iconos de colores
+skinparam classAttributeIconSize 0
+skinparam backgroundColor white
+skinparam roundcorner 5
+
+' --- CLASE PRINCIPAL ---
+class Main {
+    + {static} main(args: String[])
+}
+
+' --- CAPA DE LÓGICA DE NEGOCIO ---
+class GestionHospital {
+    - mapaAreas : Map<String, Area>
+    + GestionHospital()
+    + agregarArea(nombreArea: String) : void
+    + buscarArea(nombreArea: String) : Area
+    + buscarArea(nombreArea: String, crearSiNoExiste: boolean) : Area
+    + getMapaAreas() : Map<String, Area>
+    + buscarEnfermera(rut: String) : Enfermera
+    + existeEnfermera(rut: String) : boolean
+    + eliminarArea(nombreArea: String) : boolean
+}
+
+' --- ENTIDADES DEL DOMINIO ---
+class Area {
+    - nombre : String
+    - listaEnfermeras : List<Enfermera>
+    + Area(nombre: String)
+    + getNombre() : String
+    + setNombre(n: String) : void
+    + getListaEnfermeras() : List<Enfermera>
+    + agregarEnfermera(e: Enfermera) : void
+    + agregarEnfermera(rut: String, nombre: String, especialidad: String) : void
+    + toString() : String
+}
+
+class Enfermera {
+    - rut : String
+    - nombre : String
+    - especialidad : String
+    - listaTurnos : List<String>
+    + Enfermera(rut: String, nombre: String, especialidad: String)
+    + getRut() : String
+    + setRut(rut: String) : void
+    + getNombre() : String
+    + setNombre(nombre: String) : void
+    + getEspecialidad() : String
+    + setEspecialidad(e: String) : void
+    + getListaTurnos() : List<String>
+    + eliminarTurno(turno: String) : void
+    + estaDisponible(turno: String) : boolean
+    + agregarTurno(turno: String) : void
+    + toString() : String
+}
+
+' --- UTILIDADES Y PERSISTENCIA ---
+class GestorArchivos << (S,#FF7700) Static >> {
+    - {static} RUTA_ARCHIVO : String
+    + {static} guardarDatos(sistema: GestionHospital) : void
+    + {static} cargarDatos(sistema: GestionHospital) : void
+}
+
+class Validador << (S,#FF7700) Static >> {
+    + {static} validarRut(rut: String) : boolean
+    + {static} esTextoValido(texto: String) : boolean
+}
+
+' --- MANEJO DE EXCEPCIONES ---
+class Exception << (B,#FFFFFF) Java API >> {
+}
+
+class RutInvalidoException {
+    + RutInvalidoException(mensaje: String)
+}
+
+class EnfermeraNoEncontradaException {
+    + EnfermeraNoEncontradaException(mensaje: String)
+}
+
+' --- INTERFACES DE USUARIO ---
+class MainMenu {
+    - sistema : GestionHospital
+    - {static} sc : Scanner
+    + MainMenu(sistema: GestionHospital)
+    + ejecutar() : void
+    - menuAreas() : void
+    - menuEnfermeras() : void
+    - registrarEnfermera() : void
+    - listarEnfermeras() : void
+    - buscarEnfermera() : void
+    - editarEnfermera() : void
+    - eliminarEnfermera() : void
+    - menuGestionTurnos() : void
+}
+
+class MainVentana {
+    - sistema : GestionHospital
+    + MainVentana(sistema: GestionHospital)
+    - configurarVentana() : void
+    - inicializarComponentes() : void
+    - menuEnfermerasGui() : void
+    - menuTurnosGui() : void
+}
+
+' --- RELACIONES ---
+RutInvalidoException --|> Exception
+EnfermeraNoEncontradaException --|> Exception
+
+Main ..> GestionHospital : instancia >
+Main ..> MainMenu : lanza >
+Main ..> MainVentana : lanza >
+
+MainMenu o-- GestionHospital : usa >
+MainVentana o-- GestionHospital : usa >
+
+GestionHospital "1" *-- "*" Area : gestiona (Composición) >
+Area "1" o-- "*" Enfermera : contiene (Agregación) >
+
+MainMenu ..> Validador : valida datos >
+MainVentana ..> Validador : valida datos >
+MainMenu ..> GestorArchivos : persiste datos >
+MainVentana ..> GestorArchivos : persiste datos >
+
+@enduml
